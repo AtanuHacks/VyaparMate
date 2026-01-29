@@ -27,7 +27,7 @@ export default function HeroSection() {
         <div className="flex justify-center">
           <div className="w-full max-w-md h-64 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">
             <img 
-                    src="https://images.unsplash.com/photo-1726056652684-9c135013cef4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2JpbGUlMjBhcHAlMjBpbnRlcmZhY2UlMjBmaW50ZWNofGVufDF8fHx8MTc2ODcxOTY4NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" 
+                    src="hero_img.png" 
                     alt="VyaparMate App Interface"
                     className="w-full h-full object-cover"
                   />

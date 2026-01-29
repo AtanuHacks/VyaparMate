@@ -29,8 +29,8 @@ export default function Footer() {
                   </a>
                 </li>
                 <li>
-                  <a href="#features" className="text-gray-600 hover:text-gray-900 text-sm font-light transition">
-                    Features
+                  <a href="#stocks" className="text-gray-600 hover:text-gray-900 text-sm font-light transition">
+                    Stocks
                   </a>
                 </li>
                 <li>
