@@ -69,7 +69,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-gray-500 text-sm font-light">
-            © 2026 VyaparMate. Built for small businesses across India.
+            © 2026 VyaparMate. Built for small businesses across India. © Cloud Wizards. All rights reserved.
           </p>
 
           <div className="flex items-center gap-4">
