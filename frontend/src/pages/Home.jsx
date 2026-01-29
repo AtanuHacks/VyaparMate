@@ -8,15 +8,19 @@ import FeaturesSection from "../components/sections/FeaturesSection";
 import CategoriesSection from "../components/sections/CategoriesSection";
 import BillingSection from "../components/sections/BillingSection";
 
+//import Hero from "../components/Hero";
 export default function Home() {
   return (
     <div className="bg-white text-gray-900">
-      <Navbar />
-      <HeroSection />
-      <FeaturesSection />
-      <CategoriesSection />
-      <BillingSection />
+   <Navbar />
+      <main>
+        <HeroSection />
+        <FeaturesSection />
+        <CategoriesSection />
+        <BillingSection />
+      </main>
       <Footer />
     </div>
   );
 }
+

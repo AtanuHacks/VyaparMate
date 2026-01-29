@@ -4,9 +4,10 @@ export default function Navbar() {
     { label: "Features", id: "features" },
     { label: "Categories", id: "categories" },
     { label: "Billing", id: "billing" },
-    { label: "Screens", id: "screens" },
+    { label: "Stocks", id: "stocks" },
     { label: "AI Assistant", id: "ai" },
     { label: "Contact", id: "contact" },
+    { label: "About Us", id: "about" },
   ];
 
   const scrollToSection = (id) => {
@@ -18,15 +19,19 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 w-full bg-white border-b z-50">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         
         {/* Logo */}
         <div
           onClick={() => scrollToSection("hero")}
           className="flex items-center gap-2 font-semibold text-lg cursor-pointer"
         >
-          <div className="w-9 h-9 bg-green-500 rounded-xl flex items-center justify-center text-white">
-            🏪
+          <div className="w-17 h-17 bg-white-500 rounded-xl flex items-center justify-center text-white">
+            <img
+            src="/logo.svg"
+            alt="VyaparMate Logo"
+            className="h-10 w-auto"
+          />
           </div>
           VyaparMate
         </div>
@@ -43,14 +48,6 @@ export default function Navbar() {
             </button>
           ))}
         </nav>
-
-        {/* CTA */}
-        <button
-          onClick={() => scrollToSection("billing")}
-          className="bg-green-500 text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-green-600 transition"
-        >
-          Get Started
-        </button>
 
       </div>
     </header>
