@@ -25,14 +25,15 @@ export default function HeroSection() {
 
         {/* RIGHT */}
         <div className="flex justify-center">
-          <div className="w-full max-w-md h-64 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">
+          <div className="w-full max-w-lg md:max-w-xl lg:max-w-2xl h-72 md:h-80 lg:h-96 bg-gray-100 rounded-xl flex items-center justify-center">
             <img 
-                    src="hero_img.png" 
-                    alt="VyaparMate App Interface"
-                    className="w-full h-full object-cover"
-                  />
+              src="hero_img.png" 
+              alt="VyaparMate App Interface"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
+
 
 
       </div>
