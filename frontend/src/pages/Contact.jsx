@@ -1,15 +1,10 @@
-const Contact = () => {
+export default function Contact() {
   return (
-    <div style={{ padding: "40px", maxWidth: "900px", margin: "auto" }}>
-      <h1>Contact Us</h1>
-
-      <p>Have questions, feedback, or ideas? We’d love to hear from you.</p>
-
-      <p>
-        📧 <strong>Email:</strong> support@vyaparmate.in
+    <div className="pt-24 px-6 max-w-5xl mx-auto">
+      <h1 className="text-3xl font-semibold mb-4">Contact Us</h1>
+      <p className="text-gray-600">
+        Reach out to us for support or inquiries.
       </p>
     </div>
   );
-};
-
-export default contact;
+}
