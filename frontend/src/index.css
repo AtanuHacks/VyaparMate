@@ -1,3 +1,55 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* ===== CTA Button Animation ===== */
+
+.btn-cta {
+  position: relative;
+  overflow: hidden;
+  color: white;
+  background: linear-gradient(120deg, #22c55e, #16a34a, #22c55e);
+  background-size: 200% 200%;
+  animation: gradientMove 4s ease infinite;
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35);
+  transition: all 0.25s ease;
+}
+
+.btn-cta:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 10px 30px rgba(34, 197, 94, 0.55);
+}
+
+.btn-cta:active {
+  transform: scale(0.96);
+}
+
+/* Shine effect */
+.btn-cta::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.7),
+    transparent
+  );
+  transform: skewX(-25deg);
+}
+
+.btn-cta:hover::before {
+  animation: shine 0.8s ease;
+}
+
+@keyframes shine {
+  100% { left: 125%; }
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

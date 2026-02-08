@@ -13,8 +13,6 @@ export default function Navbar() {
     { label: "Billing", id: "billing" },
     { label: "Stocks", id: "stocks" },
     { label: "AI Assistant", id: "ai" },
-
-    // Route pages
     { label: "Contact", path: "/contact" },
     { label: "About Us", path: "/about" },
   ];
@@ -22,14 +20,11 @@ export default function Navbar() {
   const handleNavigation = (item) => {
     setIsOpen(false);
 
-    // If route exists → navigate
     if (item.path) {
       navigate(item.path);
       return;
     }
 
-    // If section scroll
-    // If not on home, go home first
     if (location.pathname !== "/") {
       navigate("/");
       setTimeout(() => {
@@ -46,23 +41,26 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 w-full bg-white border-b z-50">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between relative">
+      {/* Container */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 lg:h-20 flex items-center justify-between">
 
         {/* Logo */}
         <div
           onClick={() => navigate("/")}
-          className="flex items-center font-semibold text-lg cursor-pointer"
+          className="flex items-center cursor-pointer flex-shrink-0"
         >
           <img
             src="Vyapar_cart.png"
             alt="VyaparMate Logo"
-            className="h-14 w-auto -mr-1"
+            className="h-10 sm:h-12 md:h-20 lg:h-20 w-auto"
           />
-          <span className="-ml-2 leading-none">VyaparMate</span>
+          <span className="ml-1 text-sm sm:text-base md:text-lg font-semibold leading-none">
+            VyaparMate
+          </span>
         </div>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex gap-6 text-sm text-gray-600 absolute left-1/2 transform -translate-x-1/2">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex flex-1 justify-center gap-5 lg:gap-6 text-sm text-gray-600">
           {navItems.map((item, index) => (
             <button
               key={index}
@@ -75,14 +73,16 @@ export default function Navbar() {
         </nav>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+
+          {/* Login Button */}
           <button
-            className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition shadow-md"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition shadow-md"
             aria-label="Login"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
+              className="h-4 w-4 sm:h-5 sm:w-5"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -94,12 +94,17 @@ export default function Navbar() {
             </svg>
           </button>
 
-          {/* Mobile menu button */}
+          {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden p-2 rounded-md hover:bg-gray-100"
+            aria-label="Menu"
           >
-            ☰
+            {isOpen ? (
+              <span className="text-xl">✕</span>
+            ) : (
+              <span className="text-xl">☰</span>
+            )}
           </button>
         </div>
       </div>
@@ -107,7 +112,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-white border-t shadow-sm">
-          <nav className="flex flex-col px-4 py-4 gap-3 text-gray-700">
+          <nav className="flex flex-col px-4 py-4 gap-3 text-gray-700 text-sm">
             {navItems.map((item, index) => (
               <button
                 key={index}
