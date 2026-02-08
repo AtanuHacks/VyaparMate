@@ -59,10 +59,40 @@ export default function CategoriesSection() {
             return (
               <div
                 key={index}
-                className="group p-5 sm:p-6 rounded-2xl border border-gray-100 hover:border-green-200 hover:bg-green-50/50 transition-all cursor-pointer"
+                className="
+                             group
+                                    p-5 sm:p-6
+                                    rounded-2xl
+                                    border-gray-200
+                                    bg-white
+                                    transition-all duration-300 ease-out
+                                    hover:-translate-y-2
+                                    hover:shadow-xl
+                                    hover:border-green-300
+                                    cursor-pointer
+                                    "
+
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-green-100 to-emerald-100 group-hover:from-green-500 group-hover:to-emerald-600 flex items-center justify-center mb-3 sm:mb-4 transition-all">
-                  <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 group-hover:text-white transition-all" />
+                <div className="group
+p-5 sm:p-6
+rounded-2xl
+border border-gray-200
+bg-white
+transition-all duration-300 ease-out
+hover:-translate-y-2
+hover:shadow-xl
+hover:border-green-300
+cursor-pointer
+">
+                  <Icon className="w-10 h-10 sm:w-12 sm:h-12
+rounded-xl
+bg-gradient-to-br from-green-100 to-emerald-100
+group-hover:from-green-500 group-hover:to-emerald-600
+flex items-center justify-center
+mb-3 sm:mb-4
+transition-all duration-300
+group-hover:scale-110
+" />
                 </div>
 
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">
