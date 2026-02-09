@@ -1,8 +1,14 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
+import LoginModal from "../LoginModal";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+
+  const { user } = useContext(AuthContext);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -19,6 +25,12 @@ export default function Navbar() {
 
   const handleNavigation = (item) => {
     setIsOpen(false);
+
+    // Protect Stocks and AI Assistant
+    if ((item.id === "stocks" || item.id === "ai") && !user) {
+      setShowLogin(true);
+      return;
+    }
 
     if (item.path) {
       navigate(item.path);
@@ -77,6 +89,7 @@ export default function Navbar() {
 
           {/* Login Button */}
           <button
+            onClick={() => setShowLogin(true)}
             className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition shadow-md"
             aria-label="Login"
           >
@@ -125,6 +138,12 @@ export default function Navbar() {
           </nav>
         </div>
       )}
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+      />
     </header>
   );
 }

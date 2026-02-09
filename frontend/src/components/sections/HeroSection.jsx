@@ -1,4 +1,24 @@
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
+import LoginModal from "../LoginModal";
+
 export default function HeroSection() {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const [showLogin, setShowLogin] = useState(false);
+
+  const handleGetStarted = () => {
+    // If not logged in → open login
+    if (!user) {
+      setShowLogin(true);
+    } else {
+      // If logged in → go to Stocks (or any main page)
+      navigate("/stocks");
+    }
+  };
+
   return (
     <section
       id="hero"
@@ -22,8 +42,11 @@ export default function HeroSection() {
             all with zero complexity.
           </p>
 
-          {/* Premium CTA Button */}
-          <button className="btn-cta pulse mt-6 sm:mt-8 w-full sm:w-auto px-6 py-3 rounded-lg font-medium text-sm sm:text-base">
+          {/* Get Started Button */}
+          <button
+            onClick={handleGetStarted}
+            className="btn-cta pulse mt-6 sm:mt-8 w-full sm:w-auto px-6 py-3 rounded-lg font-medium text-sm sm:text-base"
+          >
             Get Started
           </button>
         </div>
@@ -38,8 +61,13 @@ export default function HeroSection() {
             />
           </div>
         </div>
-
       </div>
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+      />
     </section>
   );
 }
