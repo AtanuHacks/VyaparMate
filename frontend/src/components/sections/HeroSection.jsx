@@ -10,14 +10,26 @@ export default function HeroSection() {
   const [showLogin, setShowLogin] = useState(false);
 
   const handleGetStarted = () => {
-    // If not logged in → open login
     if (!user) {
       setShowLogin(true);
+      return;
+    }
+  
+    // Logged in → scroll to Categories on Home
+    if (window.location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => {
+        document.getElementById("categories")?.scrollIntoView({
+          behavior: "smooth",
+        });
+      }, 100);
     } else {
-      // If logged in → go to Stocks (or any main page)
-      navigate("/stocks");
+      document.getElementById("categories")?.scrollIntoView({
+        behavior: "smooth",
+      });
     }
   };
+  
 
   return (
     <section

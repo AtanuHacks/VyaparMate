@@ -2,12 +2,14 @@ import { useState, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import LoginModal from "../LoginModal";
+import ProfileModal from "../ProfileModal";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,8 +19,8 @@ export default function Navbar() {
     { label: "Features", id: "features" },
     { label: "Categories", id: "categories" },
     { label: "Billing", id: "billing" },
-    { label: "Stocks", id: "stocks" },
-    { label: "AI Assistant", id: "ai" },
+    { label: "Stocks", path: "/stocks", protected: true },
+    { label: "AI Assistant", path: "/assistant", protected: true },
     { label: "Contact", path: "/contact" },
     { label: "About Us", path: "/about" },
   ];
@@ -26,17 +28,19 @@ export default function Navbar() {
   const handleNavigation = (item) => {
     setIsOpen(false);
 
-    // Protect Stocks and AI Assistant
-    if ((item.id === "stocks" || item.id === "ai") && !user) {
+    // Protected routes
+    if (item.protected && !user) {
       setShowLogin(true);
       return;
     }
 
+    // Route navigation
     if (item.path) {
       navigate(item.path);
       return;
     }
 
+    // Scroll navigation
     if (location.pathname !== "/") {
       navigate("/");
       setTimeout(() => {
@@ -53,7 +57,6 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 w-full bg-white border-b z-50">
-      {/* Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 lg:h-20 flex items-center justify-between">
 
         {/* Logo */}
@@ -66,7 +69,7 @@ export default function Navbar() {
             alt="VyaparMate Logo"
             className="h-10 sm:h-12 md:h-20 lg:h-20 w-auto"
           />
-          <span className="ml-1 text-sm sm:text-base md:text-lg font-semibold leading-none">
+          <span className="ml-1 text-sm sm:text-base md:text-lg font-semibold">
             VyaparMate
           </span>
         </div>
@@ -87,25 +90,35 @@ export default function Navbar() {
         {/* Right Actions */}
         <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
 
-          {/* Login Button */}
-          <button
-            onClick={() => setShowLogin(true)}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition shadow-md"
-            aria-label="Login"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 sm:h-5 sm:w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
+          {/* Profile / Login Button */}
+          {user ? (
+            <button
+              onClick={() => setShowProfile(true)}
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-semibold shadow-md"
+              aria-label="Profile"
             >
-              <path
-                fillRule="evenodd"
-                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
+              {user.name?.charAt(0)?.toUpperCase()}
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowLogin(true)}
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition shadow-md"
+              aria-label="Login"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 sm:h-5 sm:w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          )}
 
           {/* Mobile Menu Button */}
           <button
@@ -113,11 +126,7 @@ export default function Navbar() {
             className="md:hidden p-2 rounded-md hover:bg-gray-100"
             aria-label="Menu"
           >
-            {isOpen ? (
-              <span className="text-xl">✕</span>
-            ) : (
-              <span className="text-xl">☰</span>
-            )}
+            {isOpen ? "✕" : "☰"}
           </button>
         </div>
       </div>
@@ -144,6 +153,19 @@ export default function Navbar() {
         isOpen={showLogin}
         onClose={() => setShowLogin(false)}
       />
+
+      {/* Profile Modal */}
+      {user && (
+        <ProfileModal
+          isOpen={showProfile}
+          onClose={() => setShowProfile(false)}
+          user={user}
+          onLogout={() => {
+            logout();
+            setShowProfile(false);
+          }}
+        />
+      )}
     </header>
   );
 }

@@ -1,4 +1,16 @@
-import { Store, ShoppingBag, Utensils, Pill, Shirt, Wrench } from "lucide-react";
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Store,
+  ShoppingBag,
+  Utensils,
+  Pill,
+  Shirt,
+  Wrench,
+  Boxes,
+} from "lucide-react";
+import { AuthContext } from "../../context/AuthContext";
+import LoginModal from "../LoginModal";
 
 const categories = [
   {
@@ -31,9 +43,26 @@ const categories = [
     title: "Hardware & Services",
     description: "Invoice for services and products",
   },
+  {
+    icon: Boxes,
+    title: "Others",
+    description: "Custom business needs and services",
+  },
 ];
 
 export default function CategoriesSection() {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [showLogin, setShowLogin] = useState(false);
+
+  const handleCategoryClick = () => {
+    if (!user) {
+      setShowLogin(true);
+    } else {
+      navigate("/stocks");
+    }
+  };
+
   return (
     <section
       id="categories"
@@ -56,43 +85,37 @@ export default function CategoriesSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
           {categories.map((category, index) => {
             const Icon = category.icon;
+
             return (
               <div
                 key={index}
+                onClick={handleCategoryClick}
                 className="
-                             group
-                                    p-5 sm:p-6
-                                    rounded-2xl
-                                    border-gray-200
-                                    bg-white
-                                    transition-all duration-300 ease-out
-                                    hover:-translate-y-2
-                                    hover:shadow-xl
-                                    hover:border-green-300
-                                    cursor-pointer
-                                    "
-
+                  group
+                  p-5 sm:p-6
+                  rounded-2xl
+                  border border-gray-200
+                  bg-white
+                  transition-all duration-300 ease-out
+                  hover:-translate-y-2
+                  hover:shadow-xl
+                  hover:border-green-300
+                  cursor-pointer
+                "
               >
-                <div className="group
-p-5 sm:p-6
-rounded-2xl
-border border-gray-200
-bg-white
-transition-all duration-300 ease-out
-hover:-translate-y-2
-hover:shadow-xl
-hover:border-green-300
-cursor-pointer
-">
-                  <Icon className="w-10 h-10 sm:w-12 sm:h-12
-rounded-xl
-bg-gradient-to-br from-green-100 to-emerald-100
-group-hover:from-green-500 group-hover:to-emerald-600
-flex items-center justify-center
-mb-3 sm:mb-4
-transition-all duration-300
-group-hover:scale-110
-" />
+                <div
+                  className="
+                    w-10 h-10 sm:w-12 sm:h-12
+                    rounded-xl
+                    bg-gradient-to-br from-green-100 to-emerald-100
+                    group-hover:from-green-500 group-hover:to-emerald-600
+                    flex items-center justify-center
+                    mb-3 sm:mb-4
+                    transition-all duration-300
+                    group-hover:scale-110
+                  "
+                >
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 group-hover:text-white" />
                 </div>
 
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">
@@ -106,6 +129,12 @@ group-hover:scale-110
           })}
         </div>
       </div>
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+      />
     </section>
   );
 }
