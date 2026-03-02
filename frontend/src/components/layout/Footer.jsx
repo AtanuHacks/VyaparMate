@@ -1,6 +1,25 @@
 import { Twitter, Linkedin, Github, Mail } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Footer() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleScroll = (id) => {
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({
+          behavior: "smooth",
+        });
+      }, 100);
+    } else {
+      document.getElementById(id)?.scrollIntoView({
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
     <footer className="bg-gray-50 border-t border-gray-100 py-10 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -20,26 +39,35 @@ export default function Footer() {
 
           {/* Links */}
           <div className="grid grid-cols-2 gap-6 sm:gap-8 place-items-center md:place-items-start">
-            
+
             <div>
               <h4 className="font-semibold text-gray-900 mb-3 sm:mb-4 text-sm sm:text-base">
                 Quick Links
               </h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="#hero" className="text-gray-600 hover:text-green-500 transition">
+                  <button
+                    onClick={() => handleScroll("hero")}
+                    className="text-gray-600 hover:text-green-500 transition"
+                  >
                     Home
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a href="#stocks" className="text-gray-600 hover:text-green-500 transition">
+                  <button
+                    onClick={() => navigate("/stocks")}
+                    className="text-gray-600 hover:text-green-500 transition"
+                  >
                     Stocks
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a href="#categories" className="text-gray-600 hover:text-green-500 transition">
+                  <button
+                    onClick={() => handleScroll("categories")}
+                    className="text-gray-600 hover:text-green-500 transition"
+                  >
                     Categories
-                  </a>
+                  </button>
                 </li>
               </ul>
             </div>
@@ -50,19 +78,28 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="#ai" className="text-gray-600 hover:text-green-500 transition">
+                  <button
+                    onClick={() => navigate("/assistant")}
+                    className="text-gray-600 hover:text-green-500 transition"
+                  >
                     AI Assistant
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a href="/about" className="text-gray-600 hover:text-green-500 transition">
+                  <button
+                    onClick={() => navigate("/about")}
+                    className="text-gray-600 hover:text-green-500 transition"
+                  >
                     About Us
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a href="/contact" className="text-gray-600 hover:text-green-500 transition">
+                  <button
+                    onClick={() => navigate("/contact")}
+                    className="text-gray-600 hover:text-green-500 transition"
+                  >
                     Contact
-                  </a>
+                  </button>
                 </li>
               </ul>
             </div>
@@ -79,13 +116,12 @@ export default function Footer() {
 
           <div className="flex items-center gap-3 sm:gap-4">
             {[Twitter, Linkedin, Github, Mail].map((Icon, idx) => (
-              <a
+              <div
                 key={idx}
-                href="#"
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-gray-200 hover:border-green-500 flex items-center justify-center transition group"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-gray-200 hover:border-green-500 flex items-center justify-center transition group cursor-pointer"
               >
                 <Icon className="w-4 h-4 text-gray-600 group-hover:text-green-500" />
-              </a>
+              </div>
             ))}
           </div>
         </div>

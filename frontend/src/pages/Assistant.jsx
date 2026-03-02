@@ -1,6 +1,8 @@
+import Footer from "../components/layout/Footer";
 export default function Assistant() {
   return (
-    <div className="min-h-screen pt-24 px-4 sm:px-6 lg:px-10 bg-gray-50">
+    <>
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-28 pb-16">
       <div className="max-w-4xl mx-auto">
 
         {/* Header */}
@@ -42,6 +44,8 @@ export default function Assistant() {
         </div>
 
       </div>
-    </div>
+    </section>
+    <Footer />
+    </>
   );
 }

@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/layout/Navbar";
+import ScrollToTop from "./components/utils/ScrollToTop";
 
 // Pages
 import Home from "./pages/Home";
@@ -15,6 +16,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
     <AuthProvider>
+      <ScrollToTop />
       <Navbar />
 
       <Routes>
