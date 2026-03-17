@@ -1,4 +1,5 @@
 import { FileText, Download, Send, CheckCircle, Store } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const billingFeatures = [
   {
@@ -28,6 +29,7 @@ const billingFeatures = [
 ];
 
 export default function BillingSection() {
+  const navigate = useNavigate();
   return (
     <section
       id="billing"
@@ -98,9 +100,13 @@ export default function BillingSection() {
 
               {/* Buttons */}
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                <button className="w-full bg-green-500 hover:bg-green-600 text-white py-2.5 sm:py-3 rounded-xl transition font-medium text-sm">
-                  Generate QR
-                </button>
+                   <button
+                    onClick={() => navigate("/billing")}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white py-2.5 sm:py-3 rounded-xl transition font-medium text-sm"
+                  >
+                    Generate QR
+                   </button>
+
                 <button className="w-full border border-gray-200 hover:border-gray-300 text-gray-700 py-2.5 sm:py-3 rounded-xl transition font-medium text-sm">
                   Download PDF
                 </button>
