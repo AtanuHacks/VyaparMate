@@ -4,6 +4,7 @@ import cors from "cors";
 import pkg from "pg";
 import jwt from "jsonwebtoken";
 import authRoutes from "./routes/authRoutes.js";
+import stocksRoute from "./routes/stocks.js";
 
 dotenv.config();
 
@@ -13,6 +14,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+app.use("/api/stocks", stocksRoute);
+
 
 // Neon connection
 const pool = new Pool({
