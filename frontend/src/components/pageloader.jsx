@@ -41,17 +41,20 @@ export function PageLoader({ onLoadComplete }) {
     return () => clearInterval(interval);
   }, [onLoadComplete]);
 
+  // ✅ Responsive orbit radius
+  const radius = typeof window !== "undefined" && window.innerWidth < 640 ? 45 : 70;
+
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 bg-gradient-to-br from-emerald-950 via-gray-900 to-slate-950 flex flex-col items-center justify-center z-[100] overflow-hidden"
+        className="fixed inset-0 bg-gradient-to-br from-emerald-950 via-gray-900 to-slate-950 flex flex-col items-center justify-center z-[100] overflow-hidden px-4"
         initial={{ opacity: 1 }}
         exit={{ opacity: 0, scale: 1.05 }}
         transition={{ duration: 0.6 }}
       >
         {/* Background orbs */}
         <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-green-500/20 rounded-full blur-3xl"
+          className="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-green-500/20 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -66,7 +69,7 @@ export function PageLoader({ onLoadComplete }) {
         />
 
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl"
+          className="absolute bottom-1/4 right-1/4 w-64 h-64 md:w-96 md:h-96 bg-orange-500/20 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.3, 1],
             opacity: [0.2, 0.4, 0.2],
@@ -80,13 +83,13 @@ export function PageLoader({ onLoadComplete }) {
           }}
         />
 
-        <div className="relative z-10">
+        <div className="relative z-10 w-full flex flex-col items-center">
           {/* Logo */}
           <motion.div
             initial={{ scale: 0.3, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.8 }}
-            className="mb-12"
+            className="mb-10 md:mb-12"
           >
             <div className="relative">
               <motion.div
@@ -103,7 +106,7 @@ export function PageLoader({ onLoadComplete }) {
               />
 
               <motion.div
-                className="relative w-28 h-28 bg-gradient-to-br from-green-500 via-emerald-600 to-green-700 rounded-3xl flex items-center justify-center shadow-2xl"
+                className="relative w-20 h-20 md:w-28 md:h-28 bg-gradient-to-br from-green-500 via-emerald-600 to-green-700 rounded-3xl flex items-center justify-center shadow-2xl"
                 animate={{
                   boxShadow: [
                     "0 0 40px rgba(16,185,129,0.5)",
@@ -116,7 +119,7 @@ export function PageLoader({ onLoadComplete }) {
                   repeat: Infinity,
                 }}
               >
-                <Store className="w-14 h-14 text-white" />
+                <Store className="w-10 h-10 md:w-14 md:h-14 text-white" />
 
                 {[
                   { Icon: TrendingUp, angle: 0 },
@@ -134,11 +137,11 @@ export function PageLoader({ onLoadComplete }) {
                     }}
                   >
                     <motion.div
-                      className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg"
+                      className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg"
                       style={{
                         position: "absolute",
-                        left: `${Math.cos((angle * Math.PI) / 180) * 70}px`,
-                        top: `${Math.sin((angle * Math.PI) / 180) * 70}px`,
+                        left: `${Math.cos((angle * Math.PI) / 180) * radius}px`,
+                        top: `${Math.sin((angle * Math.PI) / 180) * radius}px`,
                       }}
                       animate={{
                         scale: [1, 1.2, 1],
@@ -149,7 +152,7 @@ export function PageLoader({ onLoadComplete }) {
                         repeat: Infinity,
                       }}
                     >
-                      <Icon className="w-5 h-5 text-white" />
+                      <Icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
                     </motion.div>
                   </motion.div>
                 ))}
@@ -159,16 +162,16 @@ export function PageLoader({ onLoadComplete }) {
 
           {/* Brand */}
           <div className="text-center mb-2">
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-green-400 via-emerald-400 to-green-500 bg-clip-text text-transparent">
+            <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-green-400 via-emerald-400 to-green-500 bg-clip-text text-transparent">
               VyaparMate
             </h1>
-            <p className="text-green-400/80 text-sm font-medium tracking-wider uppercase">
+            <p className="text-green-400/80 text-xs md:text-sm font-medium tracking-wider uppercase">
               Business Assistant
             </p>
           </div>
 
           {/* Loading Text */}
-          <div className="text-center mb-10 h-6">
+          <div className="text-center mb-8 md:mb-10 h-6">
             <motion.p
               key={loadingText}
               className="text-gray-400 font-light text-sm"
@@ -180,7 +183,7 @@ export function PageLoader({ onLoadComplete }) {
           </div>
 
           {/* Progress bar */}
-          <div className="w-80">
+          <div className="w-64 md:w-80">
             <div className="h-1.5 bg-gray-800/50 rounded-full overflow-hidden">
               <motion.div
                 className="h-full bg-gradient-to-r from-green-500 via-emerald-500 to-green-400"

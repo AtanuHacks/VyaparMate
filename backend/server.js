@@ -16,7 +16,6 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/stocks", stocksRoute);
 
-
 // Neon connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -42,7 +41,6 @@ const createUsersTable = async () => {
 
 createUsersTable();
 
-
 // ==============================
 // TEST ROUTE
 // ==============================
@@ -58,7 +56,6 @@ app.get("/", async (req, res) => {
   }
 });
 
-
 // ==============================
 // LOGIN / REGISTER API
 // ==============================
@@ -70,7 +67,6 @@ app.post("/api/auth/login", async (req, res) => {
   }
 
   try {
-    // Check if user exists
     let userResult = await pool.query(
       "SELECT * FROM users WHERE mobile = $1",
       [mobile]
@@ -87,6 +83,15 @@ app.post("/api/auth/login", async (req, res) => {
       user = newUser.rows[0];
     } else {
       user = userResult.rows[0];
+
+      // ✅ FIX: Update name if missing
+      if (name && !user.name) {
+        const updatedUser = await pool.query(
+          "UPDATE users SET name = $1 WHERE id = $2 RETURNING *",
+          [name, user.id]
+        );
+        user = updatedUser.rows[0];
+      }
     }
 
     // Generate JWT
@@ -104,7 +109,6 @@ app.post("/api/auth/login", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // ==============================
 // PROTECTED ROUTE (Check Login)
@@ -130,7 +134,6 @@ app.get("/api/auth/me", async (req, res) => {
     res.status(401).json({ message: "Invalid token" });
   }
 });
-
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

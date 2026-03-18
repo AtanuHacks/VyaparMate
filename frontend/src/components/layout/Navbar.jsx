@@ -59,10 +59,9 @@ export default function Navbar() {
     <>
       {/* Navbar */}
       <motion.header
-        className="fixed top-1.5 left-1/8 right-1/10 translate-x-1/2 z-50 w-[99%] max-w-10xl"
+        className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4"
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        whileHover={{ scale: 1.02 }}
         transition={{ duration: 0.4 }}
       >
         <motion.div
@@ -70,7 +69,7 @@ export default function Navbar() {
             boxShadow: "0 12px 40px rgba(0,0,0,0.18)",
           }}
           transition={{ duration: 0.3 }}
-          className="flex items-center justify-between px-6 py-3 bg-white/70 backdrop-blur-xl rounded-full border border-gray-200 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+          className="relative w-full max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 bg-white/70 backdrop-blur-xl rounded-xl md:rounded-full border border-gray-200 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
         >
           {/* Logo */}
           <div
@@ -137,7 +136,8 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="mt-3 md:hidden bg-white rounded-xl shadow-lg border">
+        <div className="absolute top-full mt-2 w-full left-0 md:hidden">
+          <div className="bg-white rounded-xl shadow-lg border mx-2">
             <nav className="flex flex-col px-4 py-3 gap-2">
               {navItems.map((item, index) => (
                 <button
@@ -150,14 +150,15 @@ export default function Navbar() {
               ))}
             </nav>
           </div>
-        )}
+        </div>
+      )}
       </motion.header>
 
       {/* Logout Modal */}
       {showProfile && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-xl w-[340px] p-6 text-center">
-            <h2 className="text-lg font-semibold mb-4">Account</h2>
+            <h2 className="text-lg font-semibold mb-4">{user.name}</h2>
 
             <p className="text-gray-500 mb-6">{user.mobile}</p>
 

@@ -24,7 +24,7 @@ export default function ProfileModal({ isOpen, onClose, user, onLogout }) {
           </div>
 
           <h3 className="mt-3 text-lg font-semibold text-gray-900">
-            {user?.name}
+            {user?.name || "User"}
           </h3>
 
           <p className="text-sm text-gray-500">

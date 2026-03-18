@@ -14,6 +14,7 @@ import Contact from "./pages/Contact";
 import Stocks from "./pages/Stocks";
 import Assistant from "./pages/Assistant";
 import Billing from "./pages/billing";
+
 // Auth
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -33,58 +34,64 @@ function App() {
       {/* Floating background elements */}
       <FloatingElements />
 
-      
+      {/* ✅ Navbar always visible */}
+      <Navbar />
 
-      <Routes>
-        <Route
-  path="/dashboard"
-  element={
-    <ProtectedRoute>
-      <Dashboard />
-    </ProtectedRoute>
-  }
-/>
+      {/* ✅ Prevent content going under fixed navbar */}
+      <div className="pt-14">
+        <Routes>
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/analytics"
-  element={
-    <ProtectedRoute>
-      <Analytics />
-    </ProtectedRoute>
-  }
-/>
-        {/* Public routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
+          <Route
+            path="/analytics"
+            element={
+              <ProtectedRoute>
+                <Analytics />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Protected routes */}
-        <Route
-          path="/stocks"
-          element={
-            <ProtectedRoute>
-              <Stocks />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/billing"
-          element={
-            <ProtectedRoute>
-              <Billing />
-            </ProtectedRoute>
-          }
-        />
+          {/* Public routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
 
-        <Route
-          path="/assistant"
-          element={
-            <ProtectedRoute>
-              <Assistant />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+          {/* Protected routes */}
+          <Route
+            path="/stocks"
+            element={
+              <ProtectedRoute>
+                <Stocks />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/billing"
+            element={
+              <ProtectedRoute>
+                <Billing />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/assistant"
+            element={
+              <ProtectedRoute>
+                <Assistant />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </div>
     </AuthProvider>
   );
 }
