@@ -15,14 +15,16 @@ export default function Stocks() {
     quantity: ""
   });
 
-  useEffect(() => {
-    fetchStocks();
-  }, []);
-
   const fetchStocks = async () => {
     const res = await axios.get("http://localhost:5000/api/stocks");
     setItems(res.data);
   };
+
+  useEffect(() => {
+    (async () => {
+      await fetchStocks();
+    })();
+  }, []);
 
   const addItem = async () => {
     await axios.post("http://localhost:5000/api/stocks", newItem);

@@ -1,27 +1,56 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import QRCode from "react-qr-code";
+import axios from "axios";
 
 export default function Billing() {
 
-  const stockItems = [
-    { id: 1, name: "Rice", price: 45 },
-    { id: 2, name: "Dal", price: 120 },
-    { id: 3, name: "Oil", price: 180 },
-    { id: 4, name: "Sugar", price: 55 }
-  ];
-
+  const [stockItems, setStockItems] = useState([]);
   const [invoiceItems, setInvoiceItems] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [showQR, setShowQR] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState("Pending");
   const [paid, setPaid] = useState(false);
 
+  const [search, setSearch] = useState("");
+
+  /* FETCH STOCKS */
+  useEffect(() => {
+    const fetchStocks = async () => {
+      const res = await axios.get("http://localhost:5000/api/stocks");
+      setStockItems(res.data);
+    };
+    fetchStocks();
+  }, []);
+
+  /* FILTER */
+  const filteredItems = stockItems.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
+    return matchesSearch;
+  });
+
+  /* ADD ITEM */
   const addItem = (item) => {
 
-    const qty = quantities[item.id] || 1;
+    let qty = quantities[item.id] || 1;
+
+    if (!qty || qty <= 0) {
+      alert("Enter valid quantity");
+      return;
+    }
 
     const existing = invoiceItems.find(i => i.id === item.id);
+    const alreadyAdded = existing ? existing.quantity : 0;
+
+    if (alreadyAdded + qty > item.quantity) {
+      alert(`Only ${item.quantity - alreadyAdded} more available`);
+      return;
+    }
+
+    if (item.quantity === 0) {
+      alert("Out of Stock");
+      return;
+    }
 
     if (existing) {
       setInvoiceItems(
@@ -32,10 +61,7 @@ export default function Billing() {
         )
       );
     } else {
-      setInvoiceItems([
-        ...invoiceItems,
-        { ...item, quantity: qty }
-      ]);
+      setInvoiceItems([...invoiceItems, { ...item, quantity: qty }]);
     }
   };
 
@@ -47,290 +73,263 @@ export default function Billing() {
   const gst = subtotal * 0.05;
   const total = subtotal + gst;
 
-  /* Download + Print */
+  /* PAYMENT */
+  const handlePayment = async () => {
 
-  const downloadAndPrint = () => {
+    for (const item of invoiceItems) {
 
-    const doc = new jsPDF();
+      const stock = stockItems.find(s => s.id === item.id);
 
-    doc.text("VyaparMate Invoice", 20, 20);
+      if (!stock || stock.quantity < item.quantity) {
+        alert(`Not enough stock for ${item.name}`);
+        return;
+      }
 
-    let y = 40;
-
-    invoiceItems.forEach(item => {
-      doc.text(
-        `${item.name}  Qty:${item.quantity}  ₹${item.price}/kg  Total ₹${item.price * item.quantity}`,
-        20,
-        y
-      );
-      y += 10;
-    });
-
-    doc.text(`Grand Total ₹${total.toFixed(2)}`, 20, y + 20);
-
-    doc.save("invoice.pdf");
-
-    setTimeout(() => {
-      window.print();
-    }, 500);
-  };
-
-  /* WhatsApp */
-
-  const sendWhatsApp = () => {
-
-    let message = "Invoice:%0A";
-
-    invoiceItems.forEach(item => {
-      message += `${item.name} x${item.quantity} = ₹${item.price * item.quantity}%0A`;
-    });
-
-    message += `%0AGrand Total: ₹${total.toFixed(2)}`;
-
-    window.open(`https://wa.me/?text=${message}`);
-  };
-
-  /* Payment */
-
-  const handlePayment = () => {
+      for (let i = 0; i < item.quantity; i++) {
+        await axios.patch(`http://localhost:5000/api/stocks/decrease/${item.id}`);
+      }
+    }
 
     setPaid(true);
     setPaymentStatus("Paid");
+    const res = await axios.get("http://localhost:5000/api/stocks");
+    setStockItems(res.data);
+  };
 
-    setTimeout(() => {
-      setShowQR(false);
-    }, 2000);
+  /* ✅ FIXED PDF */
+  const downloadAndPrint = () => {
+
+    if (!paid) {
+      alert("Complete payment first");
+      return;
+    }
+
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("INVOICE", 85, 20);
+
+    doc.setFontSize(12);
+    doc.text("VyaparMate", 20, 30);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 140, 30);
+
+    let y = 50;
+
+    doc.text("Item", 20, y);
+    doc.text("Qty", 90, y);
+    doc.text("Price", 120, y);
+    doc.text("Total", 160, y);
+
+    y += 5;
+    doc.line(20, y, 190, y);
+    y += 10;
+
+    invoiceItems.forEach(item => {
+      doc.text(item.name, 20, y);
+      doc.text(String(item.quantity), 90, y);
+      doc.text(`₹${item.price}`, 120, y);
+      doc.text(`₹${item.price * item.quantity}`, 160, y);
+      y += 10;
+    });
+
+    y += 10;
+    doc.line(20, y, 190, y);
+    y += 10;
+
+    doc.setFontSize(14);
+    doc.text(`Grand Total: ₹${total.toFixed(2)}`, 120, y);
+
+    y += 10;
+    doc.setFontSize(12);
+    doc.text(`Payment Status: Paid`, 20, y);
+
+    doc.save("invoice.pdf");
   };
 
   return (
+    <section className="pt-20 px-3 sm:px-4 pb-16 bg-gray-50 min-h-screen">
 
-    <section className="pt-24 px-4 pb-16 bg-gray-50 min-h-screen">
-
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-10">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* INVOICE */}
+        <div className="bg-white rounded-xl shadow p-4 sm:p-6">
 
-        <div className="bg-white rounded-xl shadow-lg p-6">
-
-          <h1 className="text-3xl font-bold text-green-800 mb-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-green-800 mb-4">
             INVOICE
           </h1>
 
           <div className="flex justify-between text-sm mb-4">
-
-            <p>
-              <span className="font-medium">Invoice No:</span> #1234
-            </p>
-
-            <p>
-              <span className="font-medium">Date:</span>{" "}
-              {new Date().toLocaleDateString()}
-            </p>
-
+            <p><b>Invoice No:</b> #1234</p>
+            <p><b>Date:</b> {new Date().toLocaleDateString()}</p>
           </div>
 
-          <table className="w-full text-sm border">
-
-            <thead className="bg-green-700 text-white">
-
-              <tr>
-                <th className="p-3 text-left">Item</th>
-                <th className="p-3 text-left">Qty</th>
-                <th className="p-3 text-left">Price / Qty</th>
-                <th className="p-3 text-left">Total Price</th>
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {invoiceItems.map(item => (
-
-                <tr key={item.id} className="border-b">
-
-                  <td className="p-3">{item.name}</td>
-
-                  <td className="p-3">{item.quantity}</td>
-
-                  <td className="p-3">₹{item.price}</td>
-
-                  <td className="p-3 font-medium">
-                    ₹{item.price * item.quantity}
-                  </td>
-
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border">
+              <thead className="bg-green-700 text-white">
+                <tr>
+                  <th className="p-2">Item</th>
+                  <th className="p-2">Qty</th>
+                  <th className="p-2">Price</th>
+                  <th className="p-2">Total</th>
                 </tr>
+              </thead>
 
-              ))}
+              <tbody>
+                {invoiceItems.map(item => (
+                  <tr key={item.id} className="border-b">
+                    <td className="p-2">{item.name}</td>
+                    <td className="p-2">{item.quantity}</td>
+                    <td className="p-2">₹{item.price}</td>
+                    <td className="p-2">₹{item.price * item.quantity}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-            </tbody>
-
-          </table>
-
-          <div className="flex justify-between mt-6 text-lg font-semibold">
-
+          <div className="flex justify-between mt-6 font-semibold">
             <span>Grand Total</span>
-
-            <span className="text-green-700">
-              ₹{total.toFixed(2)}
-            </span>
-
+            <span className="text-green-700">₹{total.toFixed(2)}</span>
           </div>
 
           <div className="mt-3 text-sm">
-
             Payment Status:
-
-            <span
-              className={`ml-2 px-2 py-1 rounded text-xs ${
-                paymentStatus === "Paid"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-yellow-100 text-yellow-700"
-              }`}
-            >
+            <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
               {paymentStatus}
             </span>
-
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
 
             <button
               onClick={() => setShowQR(true)}
-              className="bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg"
+              className="bg-green-500 text-white py-2 rounded-lg"
             >
               Generate QR
             </button>
 
             <button
-              onClick={downloadAndPrint}
               className="border py-2 rounded-lg"
+              onClick={() => alert("Payment history coming soon")}
             >
-              Download & Print
+              Payment History
             </button>
 
             <button
-              onClick={sendWhatsApp}
               className="bg-orange-500 text-white py-2 rounded-lg"
             >
-              Send via WhatsApp
+              WhatsApp
             </button>
 
           </div>
 
         </div>
 
-        {/* ITEMS */}
+        {/* SELECT ITEMS */}
+        <div className="bg-white rounded-xl shadow p-4 sm:p-6">
 
-        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-semibold mb-4">Select Items</h2>
 
-          <h2 className="text-xl font-semibold mb-4">
-            Select Items
-          </h2>
+          <input
+            type="text"
+            placeholder="Search..."
+            className="w-full mb-4 p-2 border rounded"
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <tbody>
+                {filteredItems.map(item => (
+                  <tr key={item.id} className="border-t">
 
-            <thead className="bg-gray-100">
+                    <td className="p-2">{item.name}</td>
+                    <td className="p-2">₹{item.price}</td>
+                    <td className="p-2">{Math.max(0, item.quantity)}</td>
 
-              <tr>
-                <th className="p-2 text-left">Item</th>
-                <th className="p-2 text-left">Price/kg</th>
-                <th className="p-2 text-left">Qty</th>
-                <th></th>
-              </tr>
+                    <td className="p-2">
+                      <input
+                        type="number"
+                        min="1"
+                        className="w-16 border rounded px-2"
+                        onChange={(e) =>
+                          setQuantities({
+                            ...quantities,
+                            [item.id]: Math.max(1, parseInt(e.target.value) || 1)
+                          })
+                        }
+                      />
+                    </td>
 
-            </thead>
+                    <td className="p-2">
+                      {item.quantity <= 0 ? (
+                        <span className="text-red-500 text-xs">Out</span>
+                      ) : (
+                        <button
+                          onClick={() => addItem(item)}
+                          className="bg-green-500 text-white px-3 py-1 rounded"
+                        >
+                          Add
+                        </button>
+                      )}
+                    </td>
 
-            <tbody>
-
-              {stockItems.map(item => (
-
-                <tr key={item.id} className="border-t">
-
-                  <td className="p-2">{item.name}</td>
-
-                  <td className="p-2">₹{item.price}</td>
-
-                  <td className="p-2">
-
-                    <input
-                      type="number"
-                      min="1"
-                      defaultValue="1"
-                      className="w-16 border rounded px-2 py-1"
-                      onChange={(e) =>
-                        setQuantities({
-                          ...quantities,
-                          [item.id]: parseInt(e.target.value)
-                        })
-                      }
-                    />
-
-                  </td>
-
-                  <td className="p-2">
-
-                    <button
-                      onClick={() => addItem(item)}
-                      className="bg-green-500 text-white px-3 py-1 rounded"
-                    >
-                      Add
-                    </button>
-
-                  </td>
-
-                </tr>
-
-              ))}
-
-            </tbody>
-
-          </table>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
         </div>
 
       </div>
 
-      {/* QR PAYMENT */}
-
+      {/* QR */}
       {showQR && (
-
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
 
           <div className="bg-white p-6 rounded-xl text-center w-80">
 
-            <h3 className="text-lg font-semibold mb-3">
-              Scan to Pay
-            </h3>
+            <h3 className="text-lg font-semibold mb-3">Scan to Pay</h3>
 
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center">
               <QRCode value={`PAYMENT:${total}`} size={150} />
             </div>
 
-            <p className="mb-4 font-medium">
-              Amount: ₹{total.toFixed(2)}
-            </p>
+            <p className="my-4">₹{total.toFixed(2)}</p>
 
             {!paid ? (
-
               <button
                 onClick={handlePayment}
                 className="w-full bg-green-500 text-white py-2 rounded-lg"
               >
                 Pay
               </button>
-
             ) : (
+              <>
+                <p className="text-green-600 font-semibold mb-3">
+                  Payment Successful ✓
+                </p>
 
-              <p className="text-green-600 font-semibold">
-                Payment Successful ✓
-              </p>
+                <button
+                  onClick={downloadAndPrint}
+                  className="w-full bg-green-500 text-white py-2 rounded-lg mb-2"
+                >
+                  Download & Print
+                </button>
 
+                <button
+                  onClick={() => setShowQR(false)}
+                  className="w-full bg-gray-200 py-2 rounded-lg"
+                >
+                  Close
+                </button>
+              </>
             )}
 
           </div>
 
         </div>
-
       )}
 
     </section>
