@@ -74,10 +74,16 @@ export default function Navbar() {
           {/* Logo */}
           <div
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 cursor-pointer"
+            className="flex items-center gap-1.5 cursor-pointer"
           >
-            <img src="/Vyapar_cart.png" alt="VyaparMate" className="h-8" />
-            <span className="font-semibold text-gray-800">VyaparMate</span>
+            <img
+              src="/Vyapar_cart.png"
+              alt="VyaparMate"
+              className="h-11 sm:h-12 md:h-14 w-auto object-contain"
+            />
+            <span className="font-semibold text-gray-800 text-base sm:text-lg">
+              VyaparMate
+            </span>
           </div>
 
           {/* Desktop Navigation */}

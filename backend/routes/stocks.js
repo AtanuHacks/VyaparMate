@@ -40,7 +40,10 @@ router.patch("/increase/:id", async (req, res) => {
 // DECREASE
 router.patch("/decrease/:id", async (req, res) => {
   const item = await pool.query(
-    "UPDATE stocks SET quantity = quantity - 1 WHERE id=$1 RETURNING *",
+    `UPDATE stocks
+     SET quantity = GREATEST(quantity - 1, 0)
+     WHERE id=$1
+     RETURNING *`,
     [req.params.id]
   );
 

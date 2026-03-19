@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Footer from "../components/layout/Footer";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, RefreshCw } from "lucide-react";
 
 export default function Stocks() {
 
@@ -41,7 +41,9 @@ export default function Stocks() {
     fetchStocks();
   };
 
-  const decreaseQty = async (id) => {
+  const decreaseQty = async (id, currentQty) => {
+    if (currentQty <= 0) return; // 🚫 stop here
+
     await axios.patch(`http://localhost:5000/api/stocks/decrease/${id}`);
     fetchStocks();
   };
@@ -63,13 +65,26 @@ export default function Stocks() {
           </p>
         </div>
 
-        {/* Add Button */}
-        <button
-          onClick={() => setShowModal(true)}
-          className="px-4 py-2 bg-green-500 text-white rounded-lg mb-6"
-        >
-          + Add Item
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+
+          {/* Add Item */}
+          <button
+            onClick={() => setShowModal(true)}
+            className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium"
+          >
+            + Add Item
+          </button>
+
+          {/* Refresh Button */}
+          <button
+            onClick={fetchStocks}
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium flex items-center justify-center gap-2"
+          >
+            <RefreshCw size={16} />
+            Refresh
+          </button>
+
+        </div>
 
         {/* Table */}
         <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
@@ -96,7 +111,7 @@ export default function Stocks() {
                     <td className="px-4 py-3 flex items-center gap-2">
 
                       <button
-                        onClick={() => decreaseQty(item.id)}
+                        onClick={() => decreaseQty(item.id, item.quantity)}
                         className="p-1 rounded-md bg-gray-100 hover:bg-gray-200 transition"
                       >
                         <Minus size={14} />
