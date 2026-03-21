@@ -38,7 +38,7 @@ function App() {
       <Navbar />
 
       {/* ✅ Prevent content going under fixed navbar */}
-      <div className="pt-14">
+      <div className="pt-0 mt-0 bg-main min-h-screen">
         <Routes>
           <Route
             path="/dashboard"

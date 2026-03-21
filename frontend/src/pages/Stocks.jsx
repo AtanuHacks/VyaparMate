@@ -58,7 +58,7 @@ export default function Stocks() {
 
   return (
     <>
-      <section className="max-w-7xl mx-auto px-4 pt-24 pb-16">
+      <section className="max-w-7xl mx-auto px-4 pt-28 sm:pt-32 pb-16 bg-main">
 
         <div className="mb-8">
           <h1 className="text-2xl font-semibold">Stock Management</h1>

@@ -21,7 +21,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-gray-50 border-t border-gray-100 py-10 sm:py-12 px-4 sm:px-6 lg:px-8">
+    <footer className="bg-main border-gray-100 py-10 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
 
         {/* Top Section */}

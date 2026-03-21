@@ -25,7 +25,7 @@ export default function FeaturesSection() {
   return (
     <section
       id="features"
-      className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-gray-50"
+      className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-main"
     >
       <div className="max-w-7xl mx-auto">
 

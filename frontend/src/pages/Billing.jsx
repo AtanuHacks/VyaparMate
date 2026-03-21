@@ -205,7 +205,7 @@ export default function Billing() {
 };
 
   return (
-    <><section className="pt-20 px-3 sm:px-4 pb-16 bg-main min-h-screen">
+    <><section className="pt-28 sm:pt-32 px-3 sm:px-4 pb-16 bg-main min-h-screen">
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 

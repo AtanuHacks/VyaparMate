@@ -66,7 +66,7 @@ export default function CategoriesSection() {
   return (
     <section
       id="categories"
-      className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white"
+      className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-main"
     >
       <div className="max-w-7xl mx-auto">
 

@@ -9,7 +9,7 @@ import CategoriesSection from "../components/sections/CategoriesSection";
 import BillingSection from "../components/sections/BillingSection";
 export default function Home() {
   return (
-    <div className="bg-white text-gray-900">
+    <div className="bg-main text-gray-900">
    <Navbar />
       <main>
         <HeroSection />
