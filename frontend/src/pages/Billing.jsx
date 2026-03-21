@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import QRCode from "react-qr-code";
 import axios from "axios";
+import { Trash2 } from "lucide-react";
+import Footer from "../components/layout/Footer";
 
 export default function Billing() {
 
@@ -15,12 +17,15 @@ export default function Billing() {
   const [search, setSearch] = useState("");
 
   /* FETCH STOCKS */
+  const fetchStocks = async () => {
+    const res = await axios.get("http://localhost:5000/api/stocks");
+    setStockItems(res.data);
+  };
+
   useEffect(() => {
-    const fetchStocks = async () => {
-      const res = await axios.get("http://localhost:5000/api/stocks");
-      setStockItems(res.data);
-    };
-    fetchStocks();
+    (async () => {
+      await fetchStocks();
+    })();
   }, []);
 
   /* FILTER */
@@ -64,6 +69,17 @@ export default function Billing() {
       setInvoiceItems([...invoiceItems, { ...item, quantity: qty }]);
     }
   };
+  const removeItem = (itemId) => {
+  setInvoiceItems(prev => prev.filter(item => item.id !== itemId));
+
+  // quantity reset
+  setQuantities(prev => {
+    const updated = { ...prev };
+    delete updated[itemId];
+    return updated;
+  });
+};
+  
 
   const subtotal = invoiceItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
@@ -92,67 +108,109 @@ export default function Billing() {
 
     setPaid(true);
     setPaymentStatus("Paid");
-    const res = await axios.get("http://localhost:5000/api/stocks");
-    setStockItems(res.data);
+    await fetchStocks();
+
+    // ✅ RESET AFTER PAYMENT
+    setTimeout(() => {
+      setInvoiceItems([]);
+      setQuantities({});
+      setPaid(false);
+      setPaymentStatus("Pending");
+      setShowQR(false);
+    }, 6000);
   };
 
-  /* ✅ FIXED PDF */
+  /* PDF (NO ₹ SYMBOL) */
   const downloadAndPrint = () => {
 
-    if (!paid) {
-      alert("Complete payment first");
-      return;
-    }
+  if (!paid) {
+    alert("Complete payment first");
+    return;
+  }
 
-    const doc = new jsPDF();
+  const doc = new jsPDF();
 
-    doc.setFontSize(18);
-    doc.text("INVOICE", 85, 20);
+  // Title
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(28);
+  doc.text("Invoice", 20, 25);
 
-    doc.setFontSize(12);
-    doc.text("VyaparMate", 20, 30);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 140, 30);
+  // Company name
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+  doc.text("VyaparMate", 20, 35);
 
-    let y = 50;
+  // Date
+  doc.text(`Date: ${new Date().toLocaleString()}`, 150, 35);
 
-    doc.text("Item", 20, y);
-    doc.text("Qty", 90, y);
-    doc.text("Price", 120, y);
-    doc.text("Total", 160, y);
+  // Table Header Background
+  doc.setFillColor(255, 204, 153); // light orange
+  doc.rect(20, 45, 170, 10, "F");
 
-    y += 5;
-    doc.line(20, y, 190, y);
-    y += 10;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
 
-    invoiceItems.forEach(item => {
-      doc.text(item.name, 20, y);
-      doc.text(String(item.quantity), 90, y);
-      doc.text(`₹${item.price}`, 120, y);
-      doc.text(`₹${item.price * item.quantity}`, 160, y);
-      y += 10;
-    });
+  doc.text("Description", 22, 52);
+  doc.text("Price", 100, 52);
+  doc.text("Qty", 130, 52);
+  doc.text("Total", 160, 52);
 
-    y += 10;
-    doc.line(20, y, 190, y);
-    y += 10;
+  let y = 65;
 
-    doc.setFontSize(14);
-    doc.text(`Grand Total: ₹${total.toFixed(2)}`, 120, y);
+  doc.setFont("helvetica", "normal");
 
-    y += 10;
-    doc.setFontSize(12);
-    doc.text(`Payment Status: Paid`, 20, y);
+  invoiceItems.forEach((item) => {
+    doc.text(item.name, 22, y);
+    doc.text("Rs. " + item.price, 100, y);
+    doc.text(item.quantity.toString(), 130, y);
+    doc.text("Rs. " + (item.price * item.quantity), 160, y);
 
-    doc.save("invoice.pdf");
-  };
+    // Line under row
+    doc.line(20, y + 3, 190, y + 3);
+
+    y += 12;
+  });
+
+  // Subtotal
+  y += 10;
+  doc.text("Subtotal:", 130, y);
+ doc.text("Rs. " + subtotal.toFixed(2), 160, y);
+
+
+  // Tax
+  y += 10;
+  doc.text("Tax (5%):", 130, y);
+  doc.text("Rs. " + gst.toFixed(2), 160, y);
+
+
+  // Total
+  y += 10;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.text("Total:", 130, y);
+  doc.text("Rs. " + total.toFixed(2), 160, y);
+
+  // Thank You box
+  y += 25;
+  doc.setFillColor(255, 102, 102); // soft red
+  doc.roundedRect(70, y, 60, 15, 3, 3, "F");
+
+  doc.setTextColor(255, 255, 255);
+  doc.text("Thank You!", 85, y + 10);
+
+  // Footer reset color
+  doc.setTextColor(0, 0, 0);
+
+  doc.save("invoice.pdf");
+};
 
   return (
-    <section className="pt-20 px-3 sm:px-4 pb-16 bg-gray-50 min-h-screen">
+    <><section className="pt-20 px-3 sm:px-4 pb-16 bg-main min-h-screen">
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* INVOICE */}
-        <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+        <div className="glass card-hover rounded-2xl shadow-xl p-4 sm:p-6 border border-white/40">
 
           <h1 className="text-2xl sm:text-3xl font-bold text-green-800 mb-4">
             INVOICE
@@ -160,12 +218,12 @@ export default function Billing() {
 
           <div className="flex justify-between text-sm mb-4">
             <p><b>Invoice No:</b> #1234</p>
-            <p><b>Date:</b> {new Date().toLocaleDateString()}</p>
+            <p><b>Date:</b> {new Date().toLocaleString()}</p>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm border">
-              <thead className="bg-green-700 text-white">
+            <table className="w-full text-sm rounded-xl overflow-hidden">
+              <thead className="bg-gradient-to-r from-green-600 to-emerald-500 text-white">
                 <tr>
                   <th className="p-2">Item</th>
                   <th className="p-2">Qty</th>
@@ -202,21 +260,37 @@ export default function Billing() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
 
             <button
-              onClick={() => setShowQR(true)}
-              className="bg-green-500 text-white py-2 rounded-lg"
+              onClick={() => {
+                if (invoiceItems.length === 0) {
+                  alert("Please select at least one item");
+                  return;
+                }
+                setShowQR(true);
+              } }
+              disabled={invoiceItems.length === 0}
+              className={`py-2 rounded-xl text-white btn-animate shadow-md ${invoiceItems.length === 0
+                  ? "bg-green-300 cursor-not-allowed"
+                  : "bg-gradient-to-r from-green-500 to-emerald-500 hover:scale-105"}`}
             >
               Generate QR
             </button>
 
-            <button
-              className="border py-2 rounded-lg"
-              onClick={() => alert("Payment history coming soon")}
-            >
+            <button className="border py-2 rounded-lg">
               Payment History
             </button>
 
             <button
-              className="bg-orange-500 text-white py-2 rounded-lg"
+              onClick={() => {
+                if (invoiceItems.length === 0) {
+                  alert("Please select at least one item");
+                  return;
+                }
+                // your existing WhatsApp logic here
+              } }
+              disabled={invoiceItems.length === 0}
+              className={`py-2 rounded-xl text-white btn-animate shadow-md ${invoiceItems.length === 0
+                  ? "bg-orange-300 cursor-not-allowed"
+                  : "bg-gradient-to-r from-orange-500 to-yellow-500 hover:scale-105"}`}
             >
               WhatsApp
             </button>
@@ -226,57 +300,81 @@ export default function Billing() {
         </div>
 
         {/* SELECT ITEMS */}
-        <div className="bg-white rounded-xl shadow p-4 sm:p-6">
-
+        <div className="glass card-hover rounded-2xl shadow-xl p-4 sm:p-6 border border-white/40">
           <h2 className="text-xl font-semibold mb-4">Select Items</h2>
 
           <input
             type="text"
             placeholder="Search..."
-            className="w-full mb-4 p-2 border rounded"
-            onChange={(e) => setSearch(e.target.value)}
-          />
+            className="w-full mb-4 p-2 border rounded-lg focus:ring-2 focus:ring-green-400 outline-none"
+            onChange={(e) => setSearch(e.target.value)} />
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
+
+              {/* ✅ NEW COLUMN STRUCTURE */}
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-2 text-left">Item</th>
+                  <th className="p-2 text-left">Price</th>
+                  <th className="p-2 text-left">Available</th>
+                  <th className="p-2 text-left">Qty</th>
+                  <th className="p-2 text-left">Action</th>
+                </tr>
+              </thead>
+
               <tbody>
-                {filteredItems.map(item => (
-                  <tr key={item.id} className="border-t">
+                {filteredItems.map(item => {
+                  const isAdded = invoiceItems.some(i => i.id === item.id);
+                  return (
 
-                    <td className="p-2">{item.name}</td>
-                    <td className="p-2">₹{item.price}</td>
-                    <td className="p-2">{Math.max(0, item.quantity)}</td>
+                    <tr key={item.id} className="border-t">
 
-                    <td className="p-2">
-                      <input
-                        type="number"
-                        min="1"
-                        className="w-16 border rounded px-2"
-                        onChange={(e) =>
-                          setQuantities({
+                      <td className="p-2">{item.name}</td>
+                      <td className="p-2">₹{item.price}</td>
+                      <td className="p-2">{Math.max(0, item.quantity)}</td>
+
+                      <td className="p-2">
+                        <input
+                          type="number"
+                          min="1"
+                          max={item.quantity}
+                          value={quantities[item.id] || ""}
+                          className="w-16 border rounded px-2"
+                          onChange={(e) => setQuantities({
                             ...quantities,
                             [item.id]: Math.max(1, parseInt(e.target.value) || 1)
-                          })
-                        }
-                      />
-                    </td>
+                          })} />
+                      </td>
 
-                    <td className="p-2">
-                      {item.quantity <= 0 ? (
-                        <span className="text-red-500 text-xs">Out</span>
-                      ) : (
-                        <button
-                          onClick={() => addItem(item)}
-                          className="bg-green-500 text-white px-3 py-1 rounded"
-                        >
-                          Add
-                        </button>
-                      )}
-                    </td>
+                      <td className="p-2 flex gap-2 items-center">
+                        {/* ADD BUTTON */}
+                        {item.quantity > 0 && (
+                          <button
+                            onClick={() => addItem(item)}
+                            className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-lg hover:scale-105 active:scale-95"
+                          >
+                            Add
+                          </button>
+                        )}
 
-                  </tr>
-                ))}
+                        {/* 🗑️ DELETE BUTTON (ONLY WHEN ADDED & NOT PAID) */}
+                        {isAdded && !paid && (
+                          <button
+                            onClick={() => removeItem(item.id)}
+                            className="bg-red-500 text-white px-2 py-1 rounded-lg hover:scale-105 active:scale-95"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        )}
+                      </td>
+
+                    </tr>
+
+                  );
+                })}
               </tbody>
+
             </table>
           </div>
 
@@ -288,12 +386,12 @@ export default function Billing() {
       {showQR && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
 
-          <div className="bg-white p-6 rounded-xl text-center w-80">
+          <div className="glass p-6 rounded-2xl text-center w-80 shadow-2xl border border-white/40 animate-[fadeIn_0.3s_ease]">
 
             <h3 className="text-lg font-semibold mb-3">Scan to Pay</h3>
 
             <div className="flex justify-center">
-              <QRCode value={`PAYMENT:${total}`} size={150} />
+              <QRCode value={`PAYMENT:${total}`} size={220} />
             </div>
 
             <p className="my-4">₹{total.toFixed(2)}</p>
@@ -301,7 +399,7 @@ export default function Billing() {
             {!paid ? (
               <button
                 onClick={handlePayment}
-                className="w-full bg-green-500 text-white py-2 rounded-lg"
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-2 rounded-xl shadow-lg hover:scale-105 active:scale-95"
               >
                 Pay
               </button>
@@ -319,8 +417,15 @@ export default function Billing() {
                 </button>
 
                 <button
-                  onClick={() => setShowQR(false)}
-                  className="w-full bg-gray-200 py-2 rounded-lg"
+                  onClick={() => {
+                    setShowQR(false);
+                    // 🔥 Reset everything
+                    setInvoiceItems([]);
+                    setQuantities({});
+                    setPaid(false);
+                    setPaymentStatus("Pending");
+                  } }
+                  className="w-full bg-gray-100 py-2 rounded-xl hover:bg-gray-200 hover:scale-105"
                 >
                   Close
                 </button>
@@ -331,7 +436,7 @@ export default function Billing() {
 
         </div>
       )}
+    </section><Footer /></>
 
-    </section>
   );
 }
