@@ -22,7 +22,9 @@ router.post("/", async (req, res) => {
 // GET all credits
 router.get("/", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM credits ORDER BY created_at DESC");
+    const result = await pool.query(
+      "SELECT id, customer_name, total_amount, invoice_items::json, created_at FROM credits ORDER BY created_at DESC"
+    );
     res.json(result.rows);
   } catch (err) {
     console.error(err);
