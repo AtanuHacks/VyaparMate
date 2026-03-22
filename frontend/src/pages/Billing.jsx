@@ -18,6 +18,9 @@ export default function Billing() {
   const [paid, setPaid] = useState(false);
   const [search, setSearch] = useState("");
 
+  const [showCreditModal, setShowCreditModal] = useState(false);
+  const [customerName, setCustomerName] = useState("");
+
   /* FETCH STOCKS */
   const fetchStocks = async () => {
     const res = await axios.get("http://localhost:5000/api/stocks");
@@ -371,7 +374,15 @@ export default function Billing() {
         {/* QR */}
         {showQR && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-            <div className="glass p-6 rounded-2xl text-center w-80 shadow-2xl border border-white/40">
+            <div className="glass p-6 rounded-2xl text-center w-80 shadow-2xl border border-white/40 relative">
+
+              {/* ❌ CLOSE ICON */}
+              <button
+                onClick={() => setShowQR(false)}
+                className="absolute top-3 right-3 text-gray-500 hover:text-black text-lg"
+              >
+                ✕
+              </button>
 
               <h3 className="text-lg font-semibold mb-3">Scan to Pay</h3>
 
@@ -382,12 +393,25 @@ export default function Billing() {
               <p className="my-4">₹{total.toFixed(2)}</p>
 
               {!paid ? (
-                <button
-                  onClick={handlePayment}
-                  className="w-full bg-green-500 text-white py-2 rounded-xl"
-                >
-                  Pay
-                </button>
+                <div className="space-y-2">
+
+                  {/* PAY */}
+                  <button
+                    onClick={handlePayment}
+                    className="w-full bg-green-500 text-white py-2 rounded-xl"
+                  >
+                    Pay
+                  </button>
+
+                  {/* 🔥 BUY ON CREDIT */}
+                  <button
+                    onClick={() => setShowCreditModal(true)}
+                    className="w-full bg-yellow-500 text-white py-2 rounded-xl"
+                  >
+                    Buy on Credit
+                  </button>
+
+                </div>
               ) : (
                 <>
                   <p className="text-green-600 font-semibold mb-3">
@@ -396,25 +420,85 @@ export default function Billing() {
 
                   <button
                     onClick={downloadAndPrint}
-                    className="w-full bg-green-500 text-white py-2 rounded-lg mb-2"
+                    className="w-full bg-green-500 text-white py-2 rounded-lg"
                   >
                     Download & Print
                   </button>
-
-                  <button
-                    onClick={() => {
-                      setShowQR(false);
-                      setInvoiceItems([]);
-                      setQuantities({});
-                      setPaid(false);
-                      setPaymentStatus("Pending");
-                    }}
-                    className="w-full bg-gray-100 py-2 rounded-xl"
-                  >
-                    Close
-                  </button>
                 </>
               )}
+
+            </div>
+          </div>
+        )}
+
+        {showCreditModal && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+            <div className="bg-white p-6 rounded-xl w-80 shadow-xl relative">
+
+              {/* CLOSE */}
+              <button
+                onClick={() => setShowCreditModal(false)}
+                className="absolute top-2 right-3 text-gray-500"
+              >
+                ✕
+              </button>
+
+              <h2 className="text-lg font-semibold mb-4">
+                Enter Customer Name
+              </h2>
+
+              <input
+                type="text"
+                placeholder="Customer Name"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="w-full border p-2 rounded mb-4"
+              />
+
+              <button
+                onClick={async () => {
+                  if (!customerName.trim()) return;
+
+                  try {
+                    // 1️⃣ Save credit in Neon
+                    await axios.post("http://localhost:5000/api/credits", {
+                      customer_name: customerName,
+                      total_amount: total,
+                      invoice_items: invoiceItems
+                    });
+
+                    // 2️⃣ Reduce stock quantities in DB exactly like paid flow
+                    for (const item of invoiceItems) {
+                      const stock = stockItems.find(s => s.id === item.id);
+                      if (!stock || stock.quantity < item.quantity) continue;
+
+                      for (let i = 0; i < item.quantity; i++) {
+                        await axios.patch(`http://localhost:5000/api/stocks/decrease/${item.id}`);
+                      }
+                    }
+
+                    // 3️⃣ Reset everything
+                    setInvoiceItems([]);
+                    setQuantities({});
+                    setPaid(false);
+                    setPaymentStatus("Pending");
+
+                    // 4️⃣ Close both popups
+                    setShowCreditModal(false);
+                    setShowQR(false);
+
+                    // 5️⃣ Refresh stock table on right-side panel
+                    await fetchStocks();
+
+                  } catch (err) {
+                    console.error("Credit purchase failed", err);
+                  }
+                }}
+                className="w-full bg-yellow-500 text-white py-2 rounded-lg"
+                >
+                Confirm Credit
+                </button>
 
             </div>
           </div>
