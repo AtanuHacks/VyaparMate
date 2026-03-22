@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import Footer from "../components/layout/Footer";
 import axios from "axios";
-import { Trash2 } from "lucide-react";
-import { Plus, Minus, RefreshCw } from "lucide-react";
+import { Trash2, Plus, Minus, RefreshCw } from "lucide-react";
 
 export default function Stocks() {
 
   const [items, setItems] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [search, setSearch] = useState("");
 
   const [newItem, setNewItem] = useState({
     name: "",
@@ -44,8 +44,7 @@ export default function Stocks() {
   };
 
   const decreaseQty = async (id, currentQty) => {
-    if (currentQty <= 0) return; // 🚫 stop here
-
+    if (currentQty <= 0) return;
     await axios.patch(`http://localhost:5000/api/stocks/decrease/${id}`);
     fetchStocks();
   };
@@ -55,6 +54,11 @@ export default function Stocks() {
     if (qty < 5) return { text: "Low", color: "bg-yellow-100 text-yellow-700" };
     return { text: "In Stock", color: "bg-green-100 text-green-700" };
   };
+
+  // 🔍 Filtered items
+  const filteredItems = items.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <>
@@ -67,7 +71,17 @@ export default function Stocks() {
           </p>
         </div>
 
+        {/* Controls */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
+
+          {/* Search */}
+          <input
+            type="text"
+            placeholder="Search items..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="px-4 py-2 border rounded-lg text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-green-400"
+          />
 
           {/* Add Item */}
           <button
@@ -77,7 +91,7 @@ export default function Stocks() {
             + Add Item
           </button>
 
-          {/* Refresh Button */}
+          {/* Refresh */}
           <button
             onClick={fetchStocks}
             className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium flex items-center justify-center gap-2"
@@ -102,64 +116,71 @@ export default function Stocks() {
             </thead>
 
             <tbody>
-              {items.map((item) => {
-                const status = getStatus(item.quantity);
+              {filteredItems.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="text-center py-6 text-gray-500">
+                    No items found
+                  </td>
+                </tr>
+              ) : (
+                filteredItems.map((item) => {
+                  const status = getStatus(item.quantity);
 
-                return (
-                  <tr key={item.id} className="border-t">
+                  return (
+                    <tr key={item.id} className="border-t">
 
-                    <td className="px-4 py-3">{item.name}</td>
+                      <td className="px-4 py-3">{item.name}</td>
 
-                    <td className="px-4 py-3 flex items-center gap-2">
+                      <td className="px-4 py-3 flex items-center gap-2">
 
-                      <button
-                        onClick={() => decreaseQty(item.id, item.quantity)}
-                        className="p-1 rounded-md bg-gray-100 hover:bg-gray-200 transition"
-                      >
-                        <Minus size={14} />
-                      </button>
+                        <button
+                          onClick={() => decreaseQty(item.id, item.quantity)}
+                          className="p-1 rounded-md bg-gray-100 hover:bg-gray-200 transition"
+                        >
+                          <Minus size={14} />
+                        </button>
 
-                      <span className="min-w-[20px] text-center">
-                        {item.quantity}
-                      </span>
+                        <span className="min-w-[20px] text-center">
+                          {item.quantity}
+                        </span>
 
-                      <button
-                        onClick={() => increaseQty(item.id)}
-                        className="p-1 rounded-md bg-gray-100 hover:bg-gray-200 transition"
-                      >
-                        <Plus size={14} />
-                      </button>
+                        <button
+                          onClick={() => increaseQty(item.id)}
+                          className="p-1 rounded-md bg-gray-100 hover:bg-gray-200 transition"
+                        >
+                          <Plus size={14} />
+                        </button>
 
-                    </td>
+                      </td>
 
-                    <td className="px-4 py-3">₹{item.price}</td>
+                      <td className="px-4 py-3">₹{item.price}</td>
 
-                    <td className="px-4 py-3">
-                      <span
-                        className={`text-xs font-medium px-2 py-1 rounded-full ${status.color}`}
-                      >
-                        {status.text}
-                      </span>
-                    </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`text-xs font-medium px-2 py-1 rounded-full ${status.color}`}
+                        >
+                          {status.text}
+                        </span>
+                      </td>
 
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => deleteItem(item.id)}
-                        className="text-red-500 hover:text-red-700 transition"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => deleteItem(item.id)}
+                          className="text-red-500 hover:text-red-700 transition"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </td>
 
-                  </tr>
-                );
-              })}
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
 
-        {/* Add Item Modal */}
-
+        {/* Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
 

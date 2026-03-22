@@ -13,7 +13,8 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Stocks from "./pages/Stocks";
 import Assistant from "./pages/Assistant";
-import Billing from "./pages/billing";
+import Billing from "./pages/Billing";
+import Transactions from "./pages/Transactions";
 
 // Auth
 import { AuthProvider } from "./context/AuthContext";
@@ -69,6 +70,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <Stocks />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/transactions"
+            element={
+              <ProtectedRoute>
+                <Transactions />
               </ProtectedRoute>
             }
           />
