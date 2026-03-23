@@ -19,7 +19,7 @@ export default function LoginModal({ isOpen, onClose }) {
 
       login(res.data.token, res.data.user);
       onClose();
-    } catch (err) {
+    } catch {
       alert("Login failed");
     }
   };

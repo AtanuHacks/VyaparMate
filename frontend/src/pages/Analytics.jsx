@@ -5,6 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer
 } from "recharts";
 import Footer from "../components/layout/Footer";
+import { AreaChart, Area } from "recharts";
 
 export default function Analytics() {
   const [stocks, setStocks] = useState([]);
@@ -30,7 +31,9 @@ export default function Analytics() {
   };
 
   useEffect(() => {
-    fetchData();
+    (async () => {
+      await fetchData();
+    })();
   }, []);
 
   // ----------------- PROCESS DATA -----------------
@@ -146,13 +149,33 @@ export default function Analytics() {
               </h2>
 
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={monthlyData}>
-                  <CartesianGrid stroke="#e5e7eb" />
+                <AreaChart data={monthlyData}>
+
+                  {/* Gradient Fill */}
+                  <defs>
+                    <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#22c55e" stopOpacity={0.6} />
+                      <stop offset="100%" stopColor="#22c55e" stopOpacity={0.05} />
+                    </linearGradient>
+                  </defs>
+
+                  <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="total" fill="#22c55e" radius={[6, 6, 0, 0]} />
-                </BarChart>
+
+                  <Area
+                    type="monotone"
+                    dataKey="total"
+                    stroke="#22c55e"
+                    strokeWidth={3}
+                    fill="url(#salesGradient)"
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 7 }}
+                    animationDuration={1500}
+                  />
+
+                </AreaChart>
               </ResponsiveContainer>
             </div>
 

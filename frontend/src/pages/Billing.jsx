@@ -28,7 +28,9 @@ export default function Billing() {
   };
 
   useEffect(() => {
-    fetchStocks();
+    (async () => {
+      await fetchStocks();
+    })();
   }, []);
 
   /* FILTER */

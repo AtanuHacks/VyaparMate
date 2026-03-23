@@ -17,7 +17,10 @@ export default function Transactions() {
   };
 
   useEffect(() => {
-    fetchTransactions();
+    const loadTransactions = async () => {
+      await fetchTransactions();
+    };
+    loadTransactions();
   }, []);
 
   return (
